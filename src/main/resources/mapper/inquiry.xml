@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="project.mapper.InquiryMapper">
+
+	<!-- 게시판 리스트 조회  -->
+	<select id="inquiryList" resultType="project.dto.InquiryDto">
+		select inquiry_idx, title, hit_cnt, 
+		       date_format(created_dt, '%Y-%m-%d %H:%i:%s') as created_dt
+		  from inquiry
+		 where deleted_yn = 'N'
+	  order by inquiry_idx desc
+	</select> 
+	
+	<!-- 게시글 입력 -->
+	<insert id="insertInquiry" parameterType="project.dto.InquiryDto">
+		insert into inquiry (title, contents, created_dt, created_id)
+		values ( #{title}, #{contents}, now(), 'admin' )
+	</insert>
+	
+	<!-- 게시글 조회수 -->
+	<update id="updateHitCount" parameterType="int">
+		update inquiry 
+		   set hit_cnt = hit_cnt + 1
+		 where inquiry_idx = #{inquiryIdx}
+	</update>
+	
+	<!-- 게시글 상세조회 -->
+	<select id="inquiryDetail" parameterType="int" resultType="project.dto.InquiryDto">
+		select inquiry_idx, title, contents, hit_cnt,
+		       date_format(created_dt, '%Y-%m-%d %H:%i:%s') as created_dt,
+		       created_id
+		  from inquiry
+		 where deleted_yn = 'N' and inquiry_idx = #{inquiryIdx}		       
+	</select>
+	
+	<!-- 게시글 수정 -->
+	<update id="updateInquiry" parameterType="project.dto.InquiryDto">
+		update inquiry
+		   set title = #{title}, 
+		       contents = #{contents}, 
+		       updated_dt = now(), 
+		       updated_id = 'admin'
+		 where inquiry_idx = #{inquiryIdx} 		 
+	</update>
+	
+	<!-- 게시글 삭제 -->
+	<delete id="deleteInquiry" parameterType="int">
+		update inquiry
+		   set deleted_yn = 'Y', 
+		       updated_dt = now(), 
+		       updated_id = 'admin'
+		 where inquiry_idx = #{inquiryIdx} 		 
+	</delete>
+
+</mapper>
